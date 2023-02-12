@@ -32,6 +32,7 @@
 - Ansible
 ### Ответ
 ![Vagrant Terraform Ansible](img/Screenshot_1.png)`
+
 ![VirtualBox](img/Screenshot_2.png)`
 
 
