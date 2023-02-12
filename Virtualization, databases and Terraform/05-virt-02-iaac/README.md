@@ -40,5 +40,5 @@
 ```
 docker ps
 ```
-![ansible](\img\Screenshot_3.png)`
-![host](\img\Screenshot_4.png)`
+![ansible](img/Screenshot_3.png)`
+![host](img/Screenshot_4.png)`
