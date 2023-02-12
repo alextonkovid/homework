@@ -25,10 +25,10 @@
 - [VirtualBox](https://www.virtualbox.org/)
 - [Vagrant](https://github.com/netology-code/devops-materials)
 - [Terraform](https://github.com/netology-code/devops-materials/blob/master/README.md)
-- Ansible
+- [Ansible]
 
-![Vagrant Terraform Ansible](\img\Screenshot_1.png)`
-![VirtualBox](\img\Screenshot_2.png)`
+![Vagrant Terraform Ansible](img/Screenshot_1.png)`
+![VirtualBox](img/Screenshot_2.png)`
 
 
 ## Задача 4 
