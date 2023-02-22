@@ -4,7 +4,7 @@
 
 Для получения зачета вам необходимо предоставить скриншот страницы с созданным образом из личного кабинета YandexCloud.
 
-[obraz](img/Screenshot_1.png)
+![obraz](img/Screenshot_1.png)
 
 ## Задача 2
 
@@ -23,7 +23,7 @@ internal_ip_address_node01_yandex_cloud = "192.168.101.24"
 
 ```
 
-[yandex_cloud](img/Screenshot_2.png)
+![yandex_cloud](img/Screenshot_2.png)
 
 ## Задача 3
 
@@ -32,7 +32,7 @@ internal_ip_address_node01_yandex_cloud = "192.168.101.24"
 
 Для получения зачета вам необходимо предоставить вывод команды "docker ps" , все контейнеры, описанные в ([docker-compose](https://github.com/netology-group/virt-homeworks/blob/virt-11/05-virt-04-docker-compose/src/ansible/stack/docker-compose.yaml)),  должны быть в статусе "Up".
 
-[yandex_cloud_docker](img/Screenshot_3.png)
+![yandex_cloud_docker](img/Screenshot_3.png)
 
 ## Задача 4
 
@@ -53,4 +53,4 @@ internal_ip_address_node01_yandex_cloud = "192.168.101.24"
 Для получения зачета, вам необходимо предоставить:
 - Скриншот из Grafana, на котором будут отображаться метрики добавленного вами сервера.
 
-[yandex_cloud_docker](img/Screenshot_5.png)
+![yandex_cloud_docker2](img/Screenshot_5.png)
