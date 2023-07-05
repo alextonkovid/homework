@@ -5,14 +5,14 @@ resource "yandex_compute_instance" "netology-count" {
 
     resources {
         cores         = 2
-        memory        = 2
+        memory        = 1
         core_fraction = 5
     }
     boot_disk {
     initialize_params {
-        image_id = "ubuntu-20-04-lts-v20230522"
+        image_id = "fd8k3a6rj9okseiqrl3k"
         type = "network-hdd"
-        size = 5
+        size = 8
         }
     }
     network_interface {

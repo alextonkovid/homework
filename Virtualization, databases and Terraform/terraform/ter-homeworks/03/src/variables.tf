@@ -31,8 +31,31 @@ variable "vpc_name" {
   description = "VPC network&subnet name"
 }
 
-variable "vm_web_image_name" {
-  type        = string
-  default     = "ubuntu-2004-lts"
-  description = "VM image name"
+variable "vm_configurations" {
+  type = list(object({
+    vm_name = string
+    cpu     = number
+    ram     = number
+    disk    = number
+  }))
+  
+  default = [
+    {
+      vm_name = "vm1"
+      cpu     = 2
+      ram     = 1
+      disk    = 8
+    },
+    {
+      vm_name = "vm2"
+      cpu     = 2
+      ram     = 2
+      disk    = 10
+    }
+  ]
 }
+
+locals {
+  ssh_public_key = file("/home/alex/.ssh/id_ed25519.pub")
+}
+

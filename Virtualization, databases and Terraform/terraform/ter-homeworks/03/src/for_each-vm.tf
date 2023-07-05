@@ -1,31 +1,3 @@
-variable "vm_configurations" {
-  type = list(object({
-    vm_name = string
-    cpu     = number
-    ram     = number
-    disk    = number
-  }))
-  
-  default = [
-    {
-      vm_name = "vm1"
-      cpu     = 2
-      ram     = 2
-      disk    = 10
-    },
-    {
-      vm_name = "vm2"
-      cpu     = 2
-      ram     = 4
-      disk    = 20
-    }
-  ]
-}
-
-locals {
-  ssh_public_key = file("~/.ssh/id_rsa.pub")
-}
-
 resource "yandex_compute_instance" "netology-develop-platform-db" {
   for_each   = { for config in var.vm_configurations : config.vm_name => config }
   name       = each.value.vm_name
@@ -34,14 +6,14 @@ resource "yandex_compute_instance" "netology-develop-platform-db" {
   resources {
     cores         = each.value.cpu
     memory        = each.value.ram
-    core_fraction = 10
+    core_fraction = 5
   }
   
   boot_disk {
     initialize_params {
-      image_id = "ubuntu-20-04-lts-v20230522"
+      image_id = "fd8k3a6rj9okseiqrl3k"
       type = "network-hdd"
-      size = 5
+      size = 8
     } 
   }
   network_interface {
@@ -55,8 +27,6 @@ resource "yandex_compute_instance" "netology-develop-platform-db" {
 }
 
 resource "null_resource" "wait_for_vm1" {
-  depends_on = [
-    yandex_compute_instance.netology-develop-platform-db["vm1"]
-  ]
+  depends_on = [yandex_compute_instance.netology-count]
 }
 

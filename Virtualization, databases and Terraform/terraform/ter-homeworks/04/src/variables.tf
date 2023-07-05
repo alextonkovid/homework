@@ -1,3 +1,5 @@
+
+
 ###cloud vars
 variable "token" {
   type        = string
@@ -33,9 +35,9 @@ variable "vpc_name" {
 
 ###common vars
 
-variable "vms_ssh_root_key" {
+variable ssh_public_key {
   type        = string
-  default     = "your_ssh_ed25519_key"
+  default     = "/home/alex/.ssh/id_ed25519.pub"
   description = "ssh-keygen -t ed25519"
 }
 
