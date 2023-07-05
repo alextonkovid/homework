@@ -303,9 +303,10 @@ JOIN orders ON clients.id = orders.client_id;
 Приведите список операций, который вы применяли для бэкапа данных и восстановления. 
 
 
-```root@cfed87e363d3```:/# pg_dump test_db > /var/lib/postgresql/data/test_db.sql
+```
+root@cfed87e363d3:/# pg_dump test_db > /var/lib/postgresql/data/test_db.sql
 
-```root@60f4f0b897e6```:/# psql -d test_db -f /backups/test_db.sql
+root@60f4f0b897e6:/# psql -d test_db -f /backups/test_db.sql
 SET
 SET
 SET
@@ -356,7 +357,7 @@ psql:/backups/test_db.sql:199: ERROR:  role "test-simple-user" does not exist
 psql:/backups/test_db.sql:206: ERROR:  role "test-admin-user" does not exist
 psql:/backups/test_db.sql:207: ERROR:  role "test-simple-user" does not exist
 root@60f4f0b897e6:/#
-
+```
 ---
 
 ### Как cдавать задание
