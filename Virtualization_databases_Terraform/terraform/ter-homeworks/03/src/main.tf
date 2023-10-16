@@ -7,3 +7,19 @@ resource "yandex_vpc_subnet" "develop" {
   network_id     = yandex_vpc_network.develop.id
   v4_cidr_blocks = var.default_cidr
 }
+
+data "yandex_compute_image" "ubuntu" {
+  family = var.vm_image_name
+}
+
+resource "local_file" "hosts_cfg" {
+  content = templatefile("${path.module}/hosts.tftpl",
+
+    {
+    webservers=yandex_compute_instance.for_each_vm, 
+    databases=yandex_compute_instance.count-vm,
+    storage=yandex_compute_instance.storage_vm.*
+    }  
+  )
+  filename = "./ansible.tf"
+}

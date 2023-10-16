@@ -1,7 +1,7 @@
-resource "yandex_compute_instance" "netology-develop-platform-db" {
+resource "yandex_compute_instance" "for_each_vm" {
   for_each   = { for config in var.vm_configurations : config.vm_name => config }
   name       = each.value.vm_name
-  platform_id = "standard-v1"
+  platform_id = var.vm_platform_id
 
   resources {
     cores         = each.value.cpu
@@ -11,9 +11,9 @@ resource "yandex_compute_instance" "netology-develop-platform-db" {
   
   boot_disk {
     initialize_params {
-      image_id = "fd8k3a6rj9okseiqrl3k"
+      image_id = data.yandex_compute_image.ubuntu.image_id
       type = "network-hdd"
-      size = 8
+      size = var.vm_resources.min.boot_disk_size
     } 
   }
   network_interface {
@@ -27,6 +27,5 @@ resource "yandex_compute_instance" "netology-develop-platform-db" {
 }
 
 resource "null_resource" "wait_for_vm1" {
-  depends_on = [yandex_compute_instance.netology-count]
+  depends_on = [yandex_compute_instance.count-vm]
 }
-

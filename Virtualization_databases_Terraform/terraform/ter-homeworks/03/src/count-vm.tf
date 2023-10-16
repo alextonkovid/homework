@@ -1,25 +1,29 @@
-resource "yandex_compute_instance" "netology-count" {
-    count      = 2
-    name       = "vm-${count.index}"
-    platform_id = "standard-v1"
+resource "yandex_compute_instance" "count-vm" {
+  count      = 2
+  name       = "web-${count.index + 1}"
+  platform_id = var.vm_platform_id
 
-    resources {
-        cores         = 2
-        memory        = 1
-        core_fraction = 5
-    }
-    boot_disk {
-    initialize_params {
-        image_id = "fd8k3a6rj9okseiqrl3k"
-        type = "network-hdd"
-        size = 8
-        }
-    }
-    network_interface {
-    subnet_id = yandex_vpc_subnet.develop.id
-    nat       = true
-    }
-    metadata = {
-        ssh-keys = "user:${local.ssh_public_key}"
-    }
+  labels = { 
+    ansible-group = "web"
+  }
+
+  resources {
+      cores         = var.vm_resources.min.cores
+      memory        = var.vm_resources.min.memory
+      core_fraction = var.vm_resources.min.core_fraction
+  }
+  boot_disk {
+  initialize_params {
+      image_id = data.yandex_compute_image.ubuntu.image_id
+      type = "network-hdd"
+      size = var.vm_resources.min.boot_disk_size
+      }
+  }
+  network_interface {
+  subnet_id = yandex_vpc_subnet.develop.id
+  nat       = true
+  }
+  metadata = {
+      ssh-keys = "user:${local.ssh_public_key}"
+  }
 }

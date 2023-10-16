@@ -41,13 +41,13 @@ variable "vm_configurations" {
   
   default = [
     {
-      vm_name = "vm1"
+      vm_name = "main"
       cpu     = 2
       ram     = 1
       disk    = 8
     },
     {
-      vm_name = "vm2"
+      vm_name = "replica"
       cpu     = 2
       ram     = 2
       disk    = 10
@@ -55,7 +55,47 @@ variable "vm_configurations" {
   ]
 }
 
+variable "vm_resources" {
+  type = map(object({
+    cores = number
+    memory = number
+    core_fraction = number
+    boot_disk_size = number
+  }))
+  default = {
+    "min" = {
+      cores = 2
+      memory = 1
+      core_fraction = 5
+      boot_disk_size = 8
+    }
+    "max" = {
+      cores = 2
+      memory = 2
+      core_fraction = 20
+      boot_disk_size = 16
+    }
+  }
+}
+
+variable "vm_image_name" {
+  type        = string
+  default     = "ubuntu-2004-lts"
+  description = "VM image name"
+}
+
+variable "vm_platform_id" {
+  type        = string
+  default     = "standard-v1"
+  description = "VM platform name"
+}
+
+variable "vm_security_group" {
+  type        = string
+  default     = "enpdea5baimkropm5jt7"
+  description = "VM platform name"
+}
+
 locals {
   ssh_public_key = file("/home/alex/.ssh/id_ed25519.pub")
 }
-
