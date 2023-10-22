@@ -1,6 +1,6 @@
 resource "yandex_compute_instance" "count-vm" {
   count      = 2
-  name       = "web-${count.index + 1}"
+  name       = "${(var.vm_names[1])}-${count.index}"
   platform_id = var.vm_platform_id
 
   labels = { 
@@ -21,9 +21,12 @@ resource "yandex_compute_instance" "count-vm" {
   }
   network_interface {
   subnet_id = yandex_vpc_subnet.develop.id
+  security_group_ids = [yandex_vpc_security_group.example.id]
   nat       = true
   }
+  
   metadata = {
       ssh-keys = "user:${local.ssh_public_key}"
   }
+  
 }

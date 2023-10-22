@@ -96,6 +96,11 @@ variable "vm_security_group" {
   description = "VM platform name"
 }
 
+variable "vm_names" {
+  type    = list(string)
+  default = ["storage", "count-vm", "main", "replica"]
+}
+
 locals {
   ssh_public_key = file("/home/alex/.ssh/id_ed25519.pub")
 }

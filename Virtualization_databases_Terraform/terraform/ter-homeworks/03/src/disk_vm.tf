@@ -5,7 +5,7 @@ resource "yandex_compute_disk" "disk_vm" {
 }
 
 resource "yandex_compute_instance" "storage_vm" {
-  name       = "storage"
+  name       = var.vm_names[0]
   platform_id = var.vm_platform_id
 
 
