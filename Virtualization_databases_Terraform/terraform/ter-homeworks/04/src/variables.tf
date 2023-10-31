@@ -85,3 +85,9 @@ variable "ssh_public_key" {
 #   description = "example vm_web_ prefix"
 # }
 
+# variable "subnets" {
+#   type = list(object({
+#     zone = string
+#     cidr_blocks     = string
+#   }))
+# }

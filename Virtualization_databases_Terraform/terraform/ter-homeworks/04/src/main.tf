@@ -1,9 +1,19 @@
 module "vpc_dev" {
   source       = "./vpc"
-  network_name = "develop"
-  subnet_name = "default"
-  zone = "ru-central1-a"
-  cidr_blocks = ["10.0.1.0/24"]
+  name = "develop"
+  subnets = [
+    { zone = "ru-central1-a", cidr = ["10.0.1.0/24"] }
+  ]
+}
+
+module "vpc_prod" {
+  source       = "./vpc"
+  name = "production"
+  subnets = [
+    { zone = "ru-central1-a", cidr = ["10.0.1.0/24"] },
+    { zone = "ru-central1-b", cidr = ["10.0.2.0/24"] },
+    { zone = "ru-central1-c", cidr = ["10.0.3.0/24"] },
+  ]
 }
 
 module "test-vm" {
@@ -11,7 +21,7 @@ module "test-vm" {
   env_name        = "develop"
   network_id      = module.vpc_dev.network_id
   subnet_zones    = ["ru-central1-a"]
-  subnet_ids      = [ module.vpc_dev.subnet_id ]
+  subnet_ids      = [ module.vpc_prod.subnets.ru-central1-a.id ]
   instance_name   = "web"
   instance_count  = 1
   image_family    = "ubuntu-2004-lts"
