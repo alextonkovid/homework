@@ -40,3 +40,28 @@ data "template_file" "cloudinit" {
     ssh_public_key2    = var.ssh_public_key[1]
   }
 }
+
+
+provider "vault" {
+ address = "http://192.168.0.25:8200"
+ skip_tls_verify = true
+ token = "education"
+}
+data "vault_generic_secret" "vault_example"{
+ path = "secret/example"
+}
+
+output "vault_example" {
+ value = "${nonsensitive(data.vault_generic_secret.vault_example.data)}"
+} 
+
+resource "vault_generic_secret" "example" {
+  path = "secret/foo"
+
+  data_json = <<EOT
+{
+  "foo":   "bar",
+  "pizza": "cheese"
+}
+EOT
+}
