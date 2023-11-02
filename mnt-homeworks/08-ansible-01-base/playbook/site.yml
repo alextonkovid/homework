@@ -1,0 +1,22 @@
+---
+  - name: Print os facts
+    hosts: all
+    tasks:
+      - name: Print OS
+        debug:
+          msg: "{{ ansible_distribution }}"
+      - name: Print fact
+        debug:
+          msg: "{{ some_fact }}"
+  - name: Print os PASS
+    hosts: all
+    tasks:
+      - name: Print password
+        debug:
+          msg: "{{ password }}"
+  - name: Print os PASS
+    hosts: fedora
+    tasks:
+      - name: Print name
+        debug:
+          msg: "{{ spider_man }}"
