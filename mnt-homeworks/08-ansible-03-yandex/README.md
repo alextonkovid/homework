@@ -16,7 +16,7 @@
 
 ## Playbook
 
-Playbook состоит из 2 `play`.
+Playbook состоит из 3 `play`.
 
 Play "Install Clickhouse" применяется и запуска `Clickhouse`
 
