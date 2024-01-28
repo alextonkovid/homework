@@ -1,27 +1,76 @@
-# Домашнее задание к занятию 3 «Использование Ansible»
+Данный плейбук предназначен для установки `Clickhouse` и `Vector` на хосты указанные в файле `inventory`.
 
-## Подготовка к выполнению
+## group_vars
 
-1. Подготовьте в Yandex Cloud три хоста: для `clickhouse`, для `vector` и для `lighthouse`.
-2. Репозиторий LightHouse находится [по ссылке](https://github.com/VKCOM/lighthouse).
+| Переменная  | Назначение  |
+|:---|:---|
+| `clickhouse_version` | версия `Clickhouse` |
+| `clickhouse_packages` | `RPM` пакеты `Clickhouse`, которые необходимо скачать |
+| `vector_url` | URL адрес для скачивания `RPM` пакетов `Vector` |
+| `vector_version` | версия `Vector` |
+| `vector_home` | каталог для скачивания `RPM` пакетов `Vector` |
 
-## Основная часть
+## Inventory файл
 
-1. Допишите playbook: нужно сделать ещё один play, который устанавливает и настраивает LightHouse.
-2. При создании tasks рекомендую использовать модули: `get_url`, `template`, `yum`, `apt`.
-3. Tasks должны: скачать статику LightHouse, установить Nginx или любой другой веб-сервер, настроить его конфиг для открытия LightHouse, запустить веб-сервер.
-4. Подготовьте свой inventory-файл `prod.yml`.
-5. Запустите `ansible-lint site.yml` и исправьте ошибки, если они есть.
-6. Попробуйте запустить playbook на этом окружении с флагом `--check`.
-7. Запустите playbook на `prod.yml` окружении с флагом `--diff`. Убедитесь, что изменения на системе произведены.
-8. Повторно запустите playbook с флагом `--diff` и убедитесь, что playbook идемпотентен.
-9. Подготовьте README.md-файл по своему playbook. В нём должно быть описано: что делает playbook, какие у него есть параметры и теги.
-10. Готовый playbook выложите в свой репозиторий, поставьте тег `08-ansible-03-yandex` на фиксирующий коммит, в ответ предоставьте ссылку на него.
+Группа "clickhouse" состоит из 1 хоста `clickhouse-01`
 
----
+## Playbook
 
-### Как оформить решение задания
+Playbook состоит из 2 `play`.
 
-Выполненное домашнее задание пришлите в виде ссылки на .md-файл в вашем репозитории.
+Play "Install Clickhouse" применяется и запуска `Clickhouse`
 
----
+Объявляем `handler` для запуска `clickhouse-server`.
+
+```yaml
+handlers:
+    - name: Start clickhouse service
+      become: true
+      ansible.builtin.service:
+        name: clickhouse-server
+        state: restarted
+```
+
+| Имя таска | Описание |
+|--------------|---------|
+| `Clickhouse \| Get clickhouse distrib` | Скачивание `RPM` пакетов. Используется цикл с перменными `clickhouse_packages`. Так как не у всех пакетов есть `noarch` версии, используем перехват ошибки `rescue` |
+| `Clickhouse \| Install clickhouse packages` | Установка `RPM` пакетов. Используем `disable_gpg_check: true` для отключения проверки GPG подписи пакетов. В `notify` указываем, что данный таск требует запуск handler `Start clickhouse service` |
+| `Clickhouse \| Flush handlers` | Форсируем применение handler `Start clickhouse service`. Это необходимо для того, чтобы handler выполнился на текущем этапе, а не по завершению тасок. Если его не запустить сейчас, то сервис не будет запущен и следующий таск завершится с ошибкой |
+| `Clickhouse \| Create database` | Создаем в `Clickhouse` БД с названием "logs". Также прописываем условия, при которых таск будет иметь состояние `failed` и `changed` |
+
+Play "Install Vector" применяется на группу хостов "Vector" и предназначен для установки и запуска `Vector`
+
+Объявляем `handler` для запуска `vector`.
+
+```yaml
+  handlers:
+    - name: Start Vector service
+      become: true
+      ansible.builtin.service:
+        name: vector
+        state: restarted
+```
+
+| Имя таска | Описание |
+|--------------|---------|
+| `Vector \| Download packages` | Скачивание `RPM` пакетов в текущую директорию пользователя |
+| `Vector \| Install packages` | Установка `RPM` пакетов. Используем `disable_gpg_check: true` для отключения проверки GPG подписи пакетов |
+| `Vector \| Apply template` | Применяем шаблон конфига `vector`. Здесь мы задаем путь конфига. Владельцем назначаем текущего пользователя `ansible`. После применения запускаем валидацию конфига |
+| `Vector \| change systemd unit` | Изменяем модуль службы `vector`. После этого указываем handler для старта службы `vector` |
+
+
+| Имя таска | Описание |
+|--------------|---------|
+| `Clone LightHouse repository` | клонировать репозиторий LightHouse из GitHub по указанному URL в указанное место. |
+| `Install Nginx` | установить пакет Nginx через yum, если он еще не установлен. |
+| `Lighthouse Apply nginx config` | применить конфигурацию Nginx из указанного шаблона к файлу /etc/nginx/nginx.conf.|
+| `Configure Nginx for LightHouse` | применить конфигурацию Nginx из указанного шаблона к файлу /etc/nginx/conf.d/lighthouse.conf и запросить перезагрузку Nginx. |
+| `Start Nginx` | запустить службу Nginx через systemd |
+
+## Template
+
+Шаблон "vector.service.j2" используется для изменения модуля службы `vector`. В нем мы определяем строку запуска `vector`. Также указываем, что unit должен быть запущен под текущим пользователем `ansible`
+
+Шаблон "vector.yml.j2" используется для настройки конфига `vector`. В нем мы указываем, что конфиг файл находится в переменной "vector_config" и его надо преобразовать в `YAML`.
+
+Шаблон "lighthouse_nginx.conf.j2" настраивает `nginx` на работу с `lighthouse`. В нем прописываем порт 80, root директорию и index страницу.
