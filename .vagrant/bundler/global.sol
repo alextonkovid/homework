@@ -1,0 +1,1 @@
+{"dependencies":[["vagrant-bindfs",["= 1.2.0"]],["vagrant-disksize",["= 0.1.3"]],["vagrant-hostmanager",["= 1.8.10"]],["vagrant-rsync-back",["= 0.0.1"]],["vagrant-winnfsd",["= 1.4.0"]]],"checksum":"ab7791fe8d8a968ea77246cde1b1baf205e53523c9487a3335f1b4867c8bb420","vagrant_version":"2.4.1"}
