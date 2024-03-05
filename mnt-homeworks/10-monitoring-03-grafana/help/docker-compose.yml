@@ -32,7 +32,7 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      # - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
     restart: unless-stopped
     expose:
       - 9100
@@ -41,7 +41,7 @@ services:
 
 
   grafana:
-    image: grafana/grafana:7.4.0
+    image: grafana/grafana:10.3.1
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
