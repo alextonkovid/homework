@@ -1,0 +1,107 @@
+***KUBESPRAY***
+
+
+sudo apt-get update -y
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get update -y
+sudo apt-get install git pip python3.11 -y
+
+sudo -i
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python3.11 get-pip.py
+
+# RETURN TO USER
+git clone https://github.com/kubernetes-sigs/kubespray.git
+cd kubespray/
+pip3.11 install -r requirements.txt
+
+# Copy `inventory/sample` as `inventory/mycluster`
+cp -rfp inventory/sample inventory/mycluster
+
+# Update Ansible inventory file with inventory builder
+declare -a IPS=(172.18.8.101 172.18.8.102 172.18.8.103 172.18.8.104 172.18.8.105 172.18.8.106)
+CONFIG_FILE=inventory/mycluster/hosts.yaml python3.11 contrib/inventory_builder/inventory.py ${IPS[@]}
+
+# Copy private ssh key to ansible host
+scp -i ~/.ssh/cebula cebula yc-user@51.250.1.235:.ssh/cebula
+sudo chmod 600 ~/.ssh/id_rsa
+
+ansible-playbook -i inventory/mycluster/hosts.yaml cluster.yml -b -v &
+
+*****YANDEX*****
+
+#!/bin/bash
+
+set -e
+
+function create-vm {
+    local NAME=$1
+
+    YC=$(cat <<END
+        yc compute instance create \
+        --name $NAME \
+        --hostname $NAME \
+        --zone ru-central1-a \
+        --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4 \
+        --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-2004-lts,size=20,type=network-ssd \
+        --memory 4 \
+        --cores 4 \
+        --ssh-key ~/.ssh/yandex.pub
+
+END
+)
+
+    eval "$YC"
+}
+
+create-vm "kubespray1"
+create-vm "kubespray2"
+create-vm "kubespray3"
+
+
+*****KUBEADM*****
+
+sudo apt-get update -y
+sudo apt-get install -y apt-transport-https ca-certificates curl
+
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt-get update -y
+sudo apt-get install -y kubelet kubeadm kubectl containerd
+sudo apt-mark hold kubelet kubeadm kubectl
+
+sudo -i
+modprobe br_netfilter
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+echo "net.bridge.bridge-nf-call-iptables=1" >> /etc/sysctl.conf
+sysctl -p /etc/sysctl.conf
+
+# get master ip for --apiserver-advertise-address
+ip a
+
+sudo kubeadm init \
+ --apiserver-advertise-address=10.0.1.19 \
+ --pod-network-cidr 10.0.1.19/16 \
+ --apiserver-cert-extra-sans=158.160.38.226
+ --control-plane-endpoint=cluster_ip_address
+
+10.128.0.26 — этот адрес слушает apiserver, необходимо взять внутренний айпишник вм, которая будет мастером (мастер ноды)
+10.244.0.0/16 — сеть для подов
+51.250.94.68 — внешний адрес, куда будем подключаться с помощью kubectl
+cluster_ip_address — кластерный IP-адрес (адрес LoadBalancer) для HA control plane, если 1 мастер, то убираем
+
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+
+worker nodes
+sudo kubeadm join 10.128.0.28:6443 --token zvxm7y.z61zq4rzaq3rtipk \
+        --discovery-token-ca-cert-hash sha256:9b650e50a7a5b6261746684d033a7d6483ea5b84db8932cb70563b35f91080f7
+
+
+kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
