@@ -9,7 +9,7 @@ resource "yandex_compute_instance" "nat-instanse" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd8rr96vc85dll9ht225"
+      image_id = "fd80mrhj8fl2oe87o4e1"
       type     = "network-hdd"
       size     = 20
     }
@@ -19,16 +19,12 @@ resource "yandex_compute_instance" "nat-instanse" {
     ipv4 = true
     ip_address = "192.168.10.254"
   }
+
 }
 
-
-data "yandex_compute_image" "ubuntu-2004-lts" {
-  family = "ubuntu-2004-lts"
-}
-
-resource "yandex_compute_instance" "test_vm" {
+resource "yandex_compute_instance" "vm-public-ip" {
   zone        = "ru-central1-a"
-  name        = "test-network"
+  name        = "vm-public-ip"
   resources {
     cores         = 2
     memory        = 1
@@ -37,10 +33,11 @@ resource "yandex_compute_instance" "test_vm" {
 
   boot_disk {
     initialize_params {
-      image_id = data.yandex_compute_image.ubuntu-2004-lts.image_id
+      image_id = "fd8idq8k33m9hlj0huli"
       type     = "network-hdd"
       size     = 20
     }
+
   }
     scheduling_policy { preemptible = true }
 
@@ -51,7 +48,44 @@ resource "yandex_compute_instance" "test_vm" {
 
   metadata = {
     serial-port-enable = 1
-    ssh-keys = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHBe9Xz59QGm7GXXIBycL98QCHkfzhQUw71xuEhFX8xN alex@new"
+    ssh-keys = "ubuntu:ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMHYoMY6UrrAOFqB3drIhp+1QEX4ve6RbETRIpyYTz23"
   }
 }
 
+
+resource "yandex_compute_instance" "vm-private-ip" {
+  zone        = "ru-central1-b"
+  name        = "vm-private-ip"
+  resources {
+    cores         = 2
+    memory        = 1
+    core_fraction = 5
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "fd8idq8k33m9hlj0huli"
+      type     = "network-hdd"
+      size     = 20
+    }
+  }
+
+  scheduling_policy { 
+    preemptible = true 
+  }
+
+  network_interface {
+    subnet_id = module.vpc.subnets_locations.private
+    ipv4 = true
+    ip_address = "192.168.10.10"
+  }
+
+  metadata = {
+    serial-port-enable = 1
+    ssh-keys = "ubuntu:ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMHYoMY6UrrAOFqB3drIhp+1QEX4ve6RbETRIpyYTz23"
+  }
+}
+
+output "vm-public-ip" {
+  value = yandex_compute_instance.vm-public-ip.network_interface.0.nat_ip_address
+}

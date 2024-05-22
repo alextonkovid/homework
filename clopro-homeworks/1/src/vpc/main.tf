@@ -20,6 +20,5 @@ resource "yandex_vpc_subnet" "vpc_subnets" {
   name           = each.key
   v4_cidr_blocks = [each.value.cidr]
   zone           = each.value.zone
-
   labels = var.labels
 }
