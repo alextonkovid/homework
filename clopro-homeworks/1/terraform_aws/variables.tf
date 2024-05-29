@@ -84,3 +84,26 @@ variable "ssh_keys" {
   type        = string
   default     = "ubuntu:ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMHYoMY6UrrAOFqB3drIhp+1QEX4ve6RbETRIpyYTz23"
 }
+
+
+# Variables
+variable "vpc_cidr" {
+  default = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidr" {
+  default = "10.0.1.0/24"
+}
+
+variable "private_subnet_cidr" {
+  default = "10.0.2.0/24"
+}
+
+# Create a VPC
+resource "aws_vpc" "netology_vpc" {
+  cidr_block = var.vpc_cidr
+
+  tags = {
+    Name = "netology_vpc"
+  }
+}
