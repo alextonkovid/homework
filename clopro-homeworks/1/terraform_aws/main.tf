@@ -1,3 +1,12 @@
+# Create a VPC
+resource "aws_vpc" "netology_vpc" {
+  cidr_block = var.vpc_cidr
+
+  tags = {
+    Name = "netology_vpc"
+  }
+}
+
 # Create Subnets
 resource "aws_subnet" "public" {
   vpc_id            = aws_vpc.netology_vpc.id
