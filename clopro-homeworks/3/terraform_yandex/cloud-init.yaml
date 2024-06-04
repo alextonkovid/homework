@@ -1,0 +1,9 @@
+#cloud-config
+version: v1
+package_update: true
+package_upgrade: true
+write_files:
+- path: /var/www/html/index.html
+  content: "<html>\n<body>\n  <h1>Hello, Netology</h1>\n  <p><a href=\"https://netology-bucket-os.website.yandexcloud.net/netology\">link to image</a></p>\n</body>\n</html>      \n"
+  owner: 'www-data:www-data'
+  permissions: '0644'
